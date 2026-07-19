@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>今日新闻播报</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .date {
+            font-size: 1.4rem;
+            color: #fff;
+            font-weight: 300;
+            opacity: 0.95;
+        }
+
+        .title {
+            font-size: 2rem;
+            color: #fff;
+            font-weight: bold;
+            margin-top: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .player-section {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .play-button {
+            display: inline-block;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+            outline: none;
+        }
+
+        .play-button:active {
+            transform: scale(0.95);
+        }
+
+        .play-button.playing {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .play-icon {
+            font-size: 3.5rem;
+            color: #fff;
+            line-height: 140px;
+        }
+
+        .play-text {
+            font-size: 1.3rem;
+            color: #555;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .duration {
+            font-size: 1rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        audio {
+            display: none;
+        }
+
+        .news-section {
+            background: #fff;
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-top: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #f5576c;
+        }
+
+        .news-item {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-number {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .news-content {
+            flex: 1;
+        }
+
+        .news-title {
+            font-size: 1.2rem;
+            color: #222;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .news-summary {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.5;
+            margin-top: 5px;
+        }
+
+        .news-source {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .blessing-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .blessing-title {
+            font-size: 1.3rem;
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+
+        .blessing-text {
+            font-size: 1.15rem;
+            color: #555;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            padding: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="date">📅 2026年7月20日 星期一</div>
+            <div class="title">📻 今日新闻</div>
+        </div>
+
+        <div class="player-section">
+            <audio id="audioPlayer" preload="auto">
+                <source src="audio/today.mp3" type="audio/mpeg">
+                您的浏览器不支持音频播放。
+            </audio>
+            <button class="play-button" id="playBtn" onclick="togglePlay()">
+                <span class="play-icon" id="playIcon">▶</span>
+            </button>
+            <div class="play-text" id="playText">点击收听今日新闻</div>
+            <div class="duration" id="duration"></div>
+        </div>
+
+        <div class="news-section">
+            <div class="section-title">📋 新闻列表（共10条）</div>
+            
+        <div class="news-item">
+            <div class="news-number">1</div>
+            <div class="news-content">
+                <div class="news-title">天天学习丨中南海月刊（2025.05）</div>
+                <div class="news-summary">时维五月，春夏交替。应邀对俄罗斯进行国事访问并出席纪念苏联伟大卫国战争胜利80周年庆典，用行动展现百年变局下的大国担当。</div>
+                <div class="news-source">来源：人民网-国内</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">2</div>
+            <div class="news-content">
+                <div class="news-title">中国—中亚地方合作亮点纷呈（环球热点）</div>
+                <div class="news-summary">图为4月20日，图定中亚班列在重庆团结村中心站等候发车。新华社记者 唐 奕摄图为4月19日，由乌兹别克斯坦费尔干纳飞往乌鲁木齐的HY571航班降落在乌鲁木齐天山国际机场。</div>
+                <div class="news-source">来源：人民网-国际</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">3</div>
+            <div class="news-content">
+                <div class="news-title">外交部回应美方宣布将对哈佛大学国际学生实行签证限制</div>
+                <div class="news-summary">新华社北京6月5日电（记者袁睿、王慧慧）针对美国日前宣布将对哈佛大学国际学生实行签证限制，外交部发言人林剑5日在例行记者会上答问时表示，中美的教育合作是互利的。</div>
+                <div class="news-source">来源：人民网-国际</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">4</div>
+            <div class="news-content">
+                <div class="news-title">把稳智能驾驶安全“方向盘” 筑牢物流配送无人车“生命线”</div>
+                <div class="news-summary">在物流行业快速发展的今天，无人配送车正以前所未有的速度重塑城市物流格局。截至今年5月，新石器慧通科技有限公司（以下简称“新石器无人车”）已在全球13个国家。</div>
+                <div class="news-source">来源：人民网-财经</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">5</div>
+            <div class="news-content">
+                <div class="news-title">环球人物：李在明当选韩国第21届总统</div>
+                <div class="news-summary">人民网首尔6月4日电（周玉波）2025年6月4日，韩国共同民主党候选人李在明以压倒性优势当选韩国第21届总统，开启了他充满坎坷但坚韧不拔的政治生涯新篇章。</div>
+                <div class="news-source">来源：人民网-国际</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">6</div>
+            <div class="news-content">
+                <div class="news-title">养老机器人逐浪“夕阳红”新蓝海</div>
+                <div class="news-summary">智能护理臂精准托起老人完成洗漱；健康监测地毯实时捕捉步态数据，提前48小时预警跌倒风险；搭载柔性机械臂的护理床只需一句语音指令就可自动调整到舒适角度。</div>
+                <div class="news-source">来源：人民网-财经</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">7</div>
+            <div class="news-content">
+                <div class="news-title">“无人机＋”，加出丰富应用场景</div>
+                <div class="news-summary">图①：一架外卖无人机在彭州升空。图②：位于彭州的“天空之眼”3号基地。图③：一架低空旅游小型飞机正在起飞。图④：俯瞰位于彭州的丽春航空动力小镇。</div>
+                <div class="news-source">来源：人民网-财经</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">8</div>
+            <div class="news-content">
+                <div class="news-title">法治力量护航民营经济高质量发展（代表之声）</div>
+                <div class="news-summary">《中华人民共和国民营经济促进法》颁布施行，令民营企业界广为振奋。这部法律的出台，承载着民营经济人士多年的期盼，回应了经营实践中的痛点、难点问题，必将开启民营经济发展的崭新篇章。</div>
+                <div class="news-source">来源：人民网-国内</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">9</div>
+            <div class="news-content">
+                <div class="news-title">镜观·足迹｜呵护千山万水 擘画永续发展</div>
+                <div class="news-summary">大美中国，江山如画。党的十八大以来，习近平总书记的考察足迹遍及神州大地。祁连山麓、坝上林海，秦岭深处、黄河之滨，总书记在大江奔涌处谋划千秋大计，在山川锦绣间擘画生态蓝图。</div>
+                <div class="news-source">来源：人民网-国内</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">10</div>
+            <div class="news-content">
+                <div class="news-title">为新能源汽车发展添动能（坚持和完善人民代表大会制度）</div>
+                <div class="news-summary">山东水利技师学院新能源汽车实训中心，学生正在进行新能源汽车整车维修和保养实操训练。翟慎安摄（人民视觉）江苏省南通市通州区东社镇杨港社区的“车网互动”智慧微电网充电站。</div>
+                <div class="news-source">来源：人民网-国内</div>
+            </div>
+        </div>
+        
+        </div>
+
+        <div class="blessing-section">
+            <div class="blessing-title">🌹 今日寄语</div>
+            <div class="blessing-text">心存善念，福报自来。愿您每一天都被温暖包围，被幸福拥抱。</div>
+        </div>
+
+        <div class="footer">
+            每日七点，准时为您播报天下事 ❤️
+        </div>
+    </div>
+
+    <script>
+        var audio = document.getElementById('audioPlayer');
+        var btn = document.getElementById('playBtn');
+        var icon = document.getElementById('playIcon');
+        var text = document.getElementById('playText');
+        var durationEl = document.getElementById('duration');
+        var isPlaying = false;
+
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+                icon.textContent = '▶';
+                text.textContent = '继续收听';
+                btn.classList.remove('playing');
+                isPlaying = false;
+            } else {
+                audio.play().then(function() {
+                    icon.textContent = '⏸';
+                    text.textContent = '正在播放...';
+                    btn.classList.add('playing');
+                    isPlaying = true;
+                }).catch(function(e) {
+                    text.textContent = '点击重试';
+                });
+            }
+        }
+
+        audio.addEventListener('loadedmetadata', function() {
+            var mins = Math.floor(audio.duration / 60);
+            var secs = Math.floor(audio.duration % 60);
+            durationEl.textContent = '时长约 ' + mins + ' 分 ' + secs + ' 秒';
+        });
+
+        audio.addEventListener('ended', function() {
+            icon.textContent = '▶';
+            text.textContent = '点击重新收听';
+            btn.classList.remove('playing');
+            isPlaying = false;
+        });
+    </script>
+</body>
+</html>

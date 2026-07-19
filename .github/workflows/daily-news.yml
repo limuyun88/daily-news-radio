@@ -1,0 +1,75 @@
+name: 每日早间新闻播报
+
+on:
+  # 定时触发：UTC 23:00 = 北京时间 07:00
+  schedule:
+    - cron: '0 23 * * *'
+  # 支持手动触发（测试用）
+  workflow_dispatch:
+
+# GitHub Actions cron 可能有几分钟延迟，这是正常现象
+# 如果仓库 60 天无活动会被自动禁用，需定期 commit 保活
+
+permissions:
+  contents: write   # 需要写入权限来推送生成的文件到 Pages
+
+jobs:
+  generate-news:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+
+      - name: 🐍 设置 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 安装系统依赖（ffmpeg）
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg
+
+      - name: 📦 安装 Python 依赖
+        run: |
+          pip install -r requirements.txt
+
+      - name: 🕐 设置时区为上海
+        run: |
+          sudo timedatectl set-timezone Asia/Shanghai
+          echo "当前时间: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+
+      - name: 📻 生成新闻播报
+        env:
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+          PAGES_BASE_URL: ${{ secrets.PAGES_BASE_URL }}
+        run: |
+          cd src
+          python main.py
+
+      - name: 📤 提交并推送生成的文件
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 添加生成的文件
+          git add docs/ || true
+
+          # 如果有变更才提交
+          if git diff --staged --quiet; then
+            echo "没有文件变更，跳过提交"
+          else
+            git commit -m "📻 每日新闻播报 - $(date '+%Y-%m-%d')"
+            git push
+          fi
+
+      - name: 🏗️ 部署到 GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          # 保留历史记录
+          keep_files: true
+          # 自定义 CNAME（如果有域名）
+          # cname: news.yourdomain.com
