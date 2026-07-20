@@ -4,15 +4,17 @@ H5 播放页面生成模块 - 生成极简大按钮播放页面，适合老人�
 import os
 from datetime import datetime
 import pytz
-from typing import List
+from typing import List, Optional
 from news_fetcher import NewsItem
 from summary_generator import get_today_blessing, truncate_summary
+from weather_fetcher import WeatherInfo
 
 
 def generate_h5_page(
     news_items: List[NewsItem],
     audio_filename: str = "today.mp3",
     output_path: str = "docs/index.html",
+    weather: Optional[WeatherInfo] = None,
 ):
     """
     生成 H5 播放页面
@@ -30,6 +32,39 @@ def generate_h5_page(
     date_str = f"{now.year}年{now.month}月{now.day}日 星期{weekday_map[now.weekday()]}"
 
     blessing = get_today_blessing()
+
+    # 生成天气区块 HTML
+    weather_html = ""
+    if weather and weather.city and weather.temperature:
+        weather_items = []
+        if weather.description:
+            weather_items.append(f'<div class="weather-desc">🌤️ {weather.description}</div>')
+        if weather.temperature:
+            temp_line = f'<div class="weather-temp">🌡️ {weather.temperature}°C'
+            if weather.feels_like:
+                temp_line += f'（体感{weather.feels_like}°C）'
+            if weather.today_temp_max and weather.today_temp_min:
+                temp_line += f' · {weather.today_temp_min}~{weather.today_temp_max}°C'
+            temp_line += '</div>'
+            weather_items.append(temp_line)
+        wind_humidity = []
+        if weather.wind_dir and weather.wind_scale:
+            wind_humidity.append(f'🌬️ {weather.wind_dir}{weather.wind_scale}级')
+        if weather.humidity:
+            wind_humidity.append(f'💧 湿度{weather.humidity}%')
+        if wind_humidity:
+            weather_items.append(f'<div class="weather-detail">{"  ".join(wind_humidity)}</div>')
+        if weather.aqi and weather.aqi_category:
+            weather_items.append(f'<div class="weather-aqi">🫁 空气质量：{weather.aqi_category}（AQI {weather.aqi}）</div>')
+        if weather.dressing_advice:
+            advice = weather.dressing_advice[:80]
+            weather_items.append(f'<div class="weather-advice">👔 {advice}</div>')
+
+        weather_html = f"""
+        <div class="weather-section">
+            <div class="weather-title">🌤️ 今日天气 · {weather.city}</div>
+            {"".join(weather_items)}
+        </div>"""
 
     # 生成新闻列表 HTML
     news_list_html = ""
@@ -150,6 +185,56 @@ def generate_h5_page(
             display: none;
         }}
 
+        .weather-section {{
+            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-top: 10px;
+            box-shadow: 0 5px 20px rgba(102, 166, 255, 0.3);
+        }}
+
+        .weather-title {{
+            font-size: 1.4rem;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }}
+
+        .weather-desc {{
+            font-size: 1.5rem;
+            color: #fff;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }}
+
+        .weather-temp {{
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }}
+
+        .weather-detail {{
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.95);
+            margin-bottom: 5px;
+        }}
+
+        .weather-aqi {{
+            font-size: 1rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 5px;
+        }}
+
+        .weather-advice {{
+            font-size: 1rem;
+            color: rgba(255,255,255,0.95);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            line-height: 1.5;
+        }}
+
         .news-section {{
             background: #fff;
             border-radius: 20px;
@@ -265,6 +350,8 @@ def generate_h5_page(
             <div class="play-text" id="playText">点击收听今日新闻</div>
             <div class="duration" id="duration"></div>
         </div>
+
+        {weather_html}
 
         <div class="news-section">
             <div class="section-title">📋 新闻列表（共{len(news_items)}条）</div>

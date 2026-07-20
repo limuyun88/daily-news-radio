@@ -102,6 +102,56 @@
             display: none;
         }
 
+        .weather-section {
+            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-top: 10px;
+            box-shadow: 0 5px 20px rgba(102, 166, 255, 0.3);
+        }
+
+        .weather-title {
+            font-size: 1.4rem;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .weather-desc {
+            font-size: 1.5rem;
+            color: #fff;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .weather-temp {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .weather-detail {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.95);
+            margin-bottom: 5px;
+        }
+
+        .weather-aqi {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 5px;
+        }
+
+        .weather-advice {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.95);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            line-height: 1.5;
+        }
+
         .news-section {
             background: #fff;
             border-radius: 20px;
@@ -216,6 +266,12 @@
             </button>
             <div class="play-text" id="playText">点击收听今日新闻</div>
             <div class="duration" id="duration"></div>
+        </div>
+
+        
+        <div class="weather-section">
+            <div class="weather-title">🌤️ 今日天气 · 武汉</div>
+            <div class="weather-desc">🌤️ 小雨</div><div class="weather-temp">🌡️ 29°C（体感36°C） · 26~32°C</div><div class="weather-detail">🌬️ 东南风1级  💧 湿度89%</div>
         </div>
 
         <div class="news-section">

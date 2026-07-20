@@ -71,7 +71,19 @@ NEWS_FILTER = {
     "min_domestic": 4,
 }
 
-# ============ 语音合成配置 ============
+# ============ 天气预报配置 ============
+WEATHER_CONFIG = {
+    "city": "武汉",  # 查询天气的城市
+    # 和风天气API（推荐，数据最全：温度/风力/湿度/AQI/穿衣建议）
+    # 注册地址: https://dev.qweather.com/
+    # 注册后在「应用管理」创建应用获取 KEY_ID 和 KEY
+    # 不配置也能用，会自动降级到中央气象台（零注册，基础天气）
+}
+
+# 和风天气API密钥（从环境变量读取）
+# QWEATHER_KEY_ID: 应用ID
+# QWEATHER_KEY: 应用密钥（私钥）
+
 TTS_CONFIG = {
     "voice": "zh-CN-XiaoxiaoNeural",  # 晓晓，温暖女声
     "rate": "-10%",  # 语速调慢10%，适合老人

@@ -45,6 +45,8 @@ jobs:
           SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
           PAGES_BASE_URL: ${{ secrets.PAGES_BASE_URL }}
           TIANAPI_KEY: ${{ secrets.TIANAPI_KEY }}
+          QWEATHER_KEY_ID: ${{ secrets.QWEATHER_KEY_ID }}
+          QWEATHER_KEY: ${{ secrets.QWEATHER_KEY }}
         run: |
           cd src
           python main.py

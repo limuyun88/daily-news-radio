@@ -50,10 +50,14 @@ def format_news_for_speech(item: NewsItem, index: int) -> str:
         return f"第{index}条：{title}。"
 
 
-def generate_broadcast_script(news_items: List[NewsItem]) -> str:
+def generate_broadcast_script(news_items: List[NewsItem], weather_speech: str = "") -> str:
     """
     生成完整播报文稿
-    格式：问候 + 新闻列表 + 祝福结尾
+    格式：问候 + 天气播报 + 新闻列表 + 祝福结尾
+
+    Args:
+        news_items: 新闻列表
+        weather_speech: 天气播报文案（空字符串则跳过天气）
     """
     shanghai_tz = pytz.timezone("Asia/Shanghai")
     now = datetime.now(shanghai_tz)
@@ -64,9 +68,16 @@ def generate_broadcast_script(news_items: List[NewsItem]) -> str:
     # 开头问候
     script_parts = [
         f"早上好！今天是{date_str}。",
-        f"下面为您播报今日新闻，共{len(news_items)}条。",
-        "",
     ]
+
+    # 天气播报（如果有）
+    if weather_speech:
+        script_parts.append(weather_speech)
+        script_parts.append("")
+
+    # 过渡到新闻
+    script_parts.append(f"下面为您播报今日新闻，共{len(news_items)}条。")
+    script_parts.append("")
 
     # 新闻正文
     for i, item in enumerate(news_items, 1):

@@ -60,6 +60,8 @@ cd daily-news-radio
 | `SERVERCHAN_KEY` | 你的 SendKey | Server酱推送密钥 |
 | `PAGES_BASE_URL` | `https://你的用户名.github.io/daily-news-radio/` | H5页面访问地址 |
 | `TIANAPI_KEY` | 你的天行API Key | 天行数据新闻API密钥（可选，增强新闻源） |
+| `QWEATHER_KEY_ID` | 和风天气应用ID | 天气预报密钥（可选，增强天气数据） |
+| `QWEATHER_KEY` | 和风天气应用密钥 | 天气预报密钥（可选，增强天气数据） |
 
 ### 3.1 注册天行数据（可选，推荐）
 

@@ -26,6 +26,7 @@ from summary_generator import generate_broadcast_script, generate_text_summary
 from tts_engine import synthesize_speech
 from h5_page import generate_h5_page
 from wechat_pusher import push_to_wechat
+from weather_fetcher import fetch_weather, format_weather_for_speech
 
 # 项目根目录（src 的上级）
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -86,14 +87,23 @@ def main():
     for i, item in enumerate(top_news, 1):
         print(f"  {i}. [{item.category}] {item.title[:40]}...")
 
-    # ========== Step 3: 生成播报文稿 ==========
-    print("\n📝 Step 3: 生成播报文稿...")
-    script = generate_broadcast_script(top_news)
-    print("📄 播报文稿预览（前200字）:")
-    print(script[:200] + "...\n")
+    # ========== Step 3: 获取天气信息 ==========
+    print("\n🌤️  Step 3: 获取天气信息...")
+    weather = fetch_weather()
+    weather_speech = format_weather_for_speech(weather)
+    if weather_speech:
+        print(f"📄 天气播报文案: {weather_speech[:100]}...")
+    else:
+        print("  ⚠️  未获取到天气信息，跳过天气播报")
 
-    # ========== Step 4: 语音合成 ==========
-    print("\n🔊 Step 4: 语音合成...")
+    # ========== Step 4: 生成播报文稿 ==========
+    print("\n📝 Step 4: 生成播报文稿...")
+    script = generate_broadcast_script(top_news, weather_speech)
+    print("📄 播报文稿预览（前300字）:")
+    print(script[:300] + "...\n")
+
+    # ========== Step 5: 语音合成 ==========
+    print("\n🔊 Step 5: 语音合成...")
     os.makedirs(AUDIO_DIR, exist_ok=True)
     audio_path = os.path.join(AUDIO_DIR, "today.mp3")
     success = synthesize_speech(script, audio_path)
@@ -105,16 +115,16 @@ def main():
     audio_size = os.path.getsize(audio_path) / 1024  # KB
     print(f"✅ 音频文件: {audio_path} ({audio_size:.1f} KB)")
 
-    # ========== Step 5: 生成 H5 播放页 ==========
-    print("\n📄 Step 5: 生成 H5 播放页...")
+    # ========== Step 6: 生成 H5 播放页 ==========
+    print("\n📄 Step 6: 生成 H5 播放页...")
     h5_path = os.path.join(DOCS_DIR, "index.html")
-    generate_h5_page(top_news, "today.mp3", h5_path)
+    generate_h5_page(top_news, "today.mp3", h5_path, weather=weather)
 
     # 保存历史记录
     save_history(top_news, script, date_str)
 
-    # ========== Step 6: 微信推送 ==========
-    print("\n📤 Step 6: 微信推送...")
+    # ========== Step 7: 微信推送 ==========
+    print("\n📤 Step 7: 微信推送...")
     push_to_wechat(len(top_news), url=PAGES_BASE_URL.rstrip("/"))
 
     # ========== 完成 ==========
