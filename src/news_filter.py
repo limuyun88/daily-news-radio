@@ -284,8 +284,20 @@ def filter_top_news(items: List[NewsItem]) -> List[NewsItem]:
             if total_chars >= target_chars:
                 break
 
-    # 按评分排序（播报顺序：评分高的先播）
-    result.sort(key=lambda x: x.score, reverse=True)
+    # 排序：先国内后国际，各自内部按评分降序
+    domestic_result = sorted(
+        [i for i in result if i.category == "domestic"],
+        key=lambda x: x.score, reverse=True
+    )
+    intl_result = sorted(
+        [i for i in result if i.category == "international"],
+        key=lambda x: x.score, reverse=True
+    )
+    other_result = sorted(
+        [i for i in result if i.category not in ("domestic", "international")],
+        key=lambda x: x.score, reverse=True
+    )
+    result = domestic_result + intl_result + other_result
 
     # 打印统计
     dom_count = sum(1 for i in result if i.category == "domestic")
