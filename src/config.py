@@ -4,43 +4,40 @@
 import os
 
 # ============ RSS 新闻源 ============
+# 中国新闻网滚动新闻：分钟级实时更新，30条最新新闻
+# 人民网RSS已弃用（数据更新不及时，多为数天前旧闻）
 RSS_FEEDS = [
-    # 人民网（数据最稳定，每频道100条）
+    # 中国新闻网滚动新闻（实时，核心数据源）
+    {
+        "name": "中国新闻网-滚动新闻",
+        "url": "https://www.chinanews.com.cn/rss/scroll-news.xml",
+        "category": "general",  # 滚动新闻包含各类别
+        "weight": 1.0,
+    },
+    # 人民网各频道（作为补充，部分可能不是当天）
     {
         "name": "人民网-国内",
         "url": "http://www.people.com.cn/rss/politics.xml",
         "category": "domestic",
-        "weight": 1.0,
+        "weight": 0.7,  # 权重降低，优先用实时源
     },
     {
         "name": "人民网-国际",
         "url": "http://www.people.com.cn/rss/world.xml",
         "category": "international",
-        "weight": 1.0,
+        "weight": 0.7,
     },
     {
         "name": "人民网-社会",
         "url": "http://www.people.com.cn/rss/society.xml",
         "category": "society",
-        "weight": 0.9,
+        "weight": 0.65,
     },
     {
         "name": "人民网-财经",
         "url": "http://www.people.com.cn/rss/finance.xml",
         "category": "economy",
-        "weight": 0.8,
-    },
-    {
-        "name": "人民网-教育",
-        "url": "http://www.people.com.cn/rss/edu.xml",
-        "category": "domestic",
-        "weight": 0.8,
-    },
-    {
-        "name": "人民网-军事",
-        "url": "http://www.people.com.cn/rss/military.xml",
-        "category": "military",
-        "weight": 0.85,
+        "weight": 0.65,
     },
 ]
 

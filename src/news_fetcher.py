@@ -6,6 +6,10 @@ import pytz
 from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 from dataclasses import dataclass, field
+
+from config import NEWS_FILTER
+
+NEWS_FILTER_TOP_N = NEWS_FILTER.get("top_n", 10)
 from typing import List
 import time
 import re
@@ -23,7 +27,8 @@ class NewsItem:
     source: str
     category: str
     weight: float = 1.0
-    score: float = 0.0  # 筛选评分
+    score: float = 0.0       # 筛选评分
+    hours_ago: float = 0.0   # 距今小时数（用于时间排序）
 
     def __repr__(self):
         return f"<News: {self.title[:30]}... [{self.source}]>"
@@ -110,7 +115,7 @@ def fetch_single_feed(feed_config: dict, timeout: int = 15) -> List[NewsItem]:
 def filter_by_time_range(items: List[NewsItem], hours: int = 48) -> List[NewsItem]:
     """
     过滤指定时间范围内的新闻
-    默认取过去48小时，宽松一些避免漏新闻
+    策略：先过滤24小时内的新闻，如果不够10条再逐步放宽
     """
     if not items:
         return items
@@ -118,29 +123,27 @@ def filter_by_time_range(items: List[NewsItem], hours: int = 48) -> List[NewsIte
     shanghai_tz = pytz.timezone("Asia/Shanghai")
     now = datetime.now(shanghai_tz)
 
-    # 计算时间范围：过去 hours 小时
-    start = now - timedelta(hours=hours)
-    end = now
-
-    filtered = []
+    # 标记每条新闻的时间距离
     for item in items:
         try:
-            # 转换为上海时区比较
             if item.published.tzinfo is None:
                 item.published = item.published.replace(tzinfo=timezone.utc)
             pub_shanghai = item.published.astimezone(shanghai_tz)
-            if start <= pub_shanghai <= end:
-                filtered.append(item)
+            hours_ago = (now - pub_shanghai).total_seconds() / 3600
+            item.hours_ago = hours_ago
         except Exception:
-            # 时间解析失败的也保留
-            filtered.append(item)
+            item.hours_ago = 999  # 时间解析失败的标记为很旧
 
-    # 如果过滤后太少，放宽到全部（RSS本身通常只返回最近的内容）
-    if len(filtered) < 10:
-        print(f"  ⚠️  时间过滤后仅 {len(filtered)} 条，放宽到全部原始数据")
-        filtered = items
+    # 分层过滤：先24小时，不够再48小时，再全部
+    for threshold in [24, 48, 72, 168]:
+        filtered = [i for i in items if i.hours_ago <= threshold]
+        if len(filtered) >= NEWS_FILTER_TOP_N:
+            print(f"  ✅ {threshold}小时内有 {len(filtered)} 条新闻（满足需求）")
+            return filtered
 
-    return filtered
+    # 如果一周内的都不够10条，返回全部
+    print(f"  ⚠️  一周内仅 {len([i for i in items if i.hours_ago <= 168])} 条，使用全部 {len(items)} 条")
+    return items
 
 
 def deduplicate(items: List[NewsItem]) -> List[NewsItem]:
