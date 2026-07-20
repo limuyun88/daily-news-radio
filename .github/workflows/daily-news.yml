@@ -44,6 +44,7 @@ jobs:
         env:
           SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
           PAGES_BASE_URL: ${{ secrets.PAGES_BASE_URL }}
+          TIANAPI_KEY: ${{ secrets.TIANAPI_KEY }}
         run: |
           cd src
           python main.py

@@ -44,6 +44,17 @@ RSS_FEEDS = [
     },
 ]
 
+# ============ 天行数据新闻API ============
+# 天行数据API Key（从环境变量读取，避免硬编码）
+# 注册地址: https://www.tianapi.com/signup.html
+# 注册后在控制台申请"综合新闻"接口，获取API Key
+TIANAPI_KEY = os.environ.get("TIANAPI_KEY", "")
+
+TIANAPI_CONFIG = {
+    "num_per_channel": 20,  # 每个频道获取条数（免费100次/天，每次最多50条）
+    "channels": ["国内", "国际", "科技", "社会"],  # 抓取的新闻分类
+}
+
 # ============ 新闻筛选配置 ============
 NEWS_FILTER = {
     "top_n": 10,  # 取前 N 条新闻

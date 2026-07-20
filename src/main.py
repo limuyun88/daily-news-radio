@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import TTS_CONFIG, PAGES_BASE_URL
 from news_fetcher import fetch_all_news, NewsItem
+from tianapi_fetcher import fetch_tianapi_news
 from news_filter import filter_top_news
 from summary_generator import generate_broadcast_script, generate_text_summary
 from tts_engine import synthesize_speech
@@ -57,9 +58,17 @@ def main():
     print(f"📅 {date_str} {now.strftime('%H:%M:%S')}")
     print("=" * 60)
 
-    # ========== Step 1: 抓取新闻 ==========
+    # ========== Step 1: 抓取新闻（RSS + 天行API） ==========
     print("\n📡 Step 1: 抓取新闻...")
-    all_news = fetch_all_news()
+    print("--- RSS 源 ---")
+    rss_news = fetch_all_news()
+
+    print("\n--- 天行数据API ---")
+    tianapi_news = fetch_tianapi_news()
+
+    # 合并两个数据源
+    all_news = rss_news + tianapi_news
+    print(f"\n📊 RSS + API 合并共 {len(all_news)} 条新闻")
 
     if not all_news:
         print("⚠️  未抓取到任何新闻，退出")

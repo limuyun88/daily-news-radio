@@ -59,6 +59,17 @@ cd daily-news-radio
 |-------------|---|------|
 | `SERVERCHAN_KEY` | 你的 SendKey | Server酱推送密钥 |
 | `PAGES_BASE_URL` | `https://你的用户名.github.io/daily-news-radio/` | H5页面访问地址 |
+| `TIANAPI_KEY` | 你的天行API Key | 天行数据新闻API密钥（可选，增强新闻源） |
+
+### 3.1 注册天行数据（可选，推荐）
+
+天行数据提供分类新闻API，作为RSS的补充数据源，让新闻更丰富。
+
+1. 访问 [tianapi.com](https://www.tianapi.com/signup.html) 注册
+2. 在控制台申请"综合新闻"接口
+3. 获取 API Key，添加到 GitHub Secrets 的 `TIANAPI_KEY`
+
+> 不配置也能正常运行，会自动只用 RSS 源。
 
 ### 4. 开启 GitHub Pages
 
