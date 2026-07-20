@@ -75,8 +75,8 @@ def main():
         print("⚠️  未抓取到任何新闻，退出")
         return False
 
-    # ========== Step 2: 筛选 TOP10 ==========
-    print(f"\n🔍 Step 2: 筛选 TOP10...")
+    # ========== Step 2: 筛选新闻（灵活条数，国内外各半） ==========
+    print(f"\n🔍 Step 2: 筛选新闻（目标7-10分钟，国内国际各半）...")
     top_news = filter_top_news(all_news)
 
     if not top_news:
