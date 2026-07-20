@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>今日新闻播报</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .date {
+            font-size: 1.4rem;
+            color: #fff;
+            font-weight: 300;
+            opacity: 0.95;
+        }
+
+        .title {
+            font-size: 2rem;
+            color: #fff;
+            font-weight: bold;
+            margin-top: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .player-section {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .play-button {
+            display: inline-block;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+            outline: none;
+        }
+
+        .play-button:active {
+            transform: scale(0.95);
+        }
+
+        .play-button.playing {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .play-icon {
+            font-size: 3.5rem;
+            color: #fff;
+            line-height: 140px;
+        }
+
+        .play-text {
+            font-size: 1.3rem;
+            color: #555;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .duration {
+            font-size: 1rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        audio {
+            display: none;
+        }
+
+        .weather-section {
+            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-top: 10px;
+            box-shadow: 0 5px 20px rgba(102, 166, 255, 0.3);
+        }
+
+        .weather-title {
+            font-size: 1.4rem;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .weather-desc {
+            font-size: 1.5rem;
+            color: #fff;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .weather-temp {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .weather-detail {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.95);
+            margin-bottom: 5px;
+        }
+
+        .weather-aqi {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 5px;
+        }
+
+        .weather-advice {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.95);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            line-height: 1.5;
+        }
+
+        .news-section {
+            background: #fff;
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-top: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #f5576c;
+        }
+
+        .news-item {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-number {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .news-content {
+            flex: 1;
+        }
+
+        .news-title {
+            font-size: 1.2rem;
+            color: #222;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .news-summary {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.5;
+            margin-top: 5px;
+        }
+
+        .news-source {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .blessing-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .blessing-title {
+            font-size: 1.3rem;
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+
+        .blessing-text {
+            font-size: 1.15rem;
+            color: #555;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            padding: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="date">📅 2026年7月20日 星期一</div>
+            <div class="title">📻 早安奶奶，今天也要开开心心，身体健康！</div>
+        </div>
+
+        <div class="player-section">
+            <audio id="audioPlayer" preload="auto">
+                <source src="audio/today.mp3" type="audio/mpeg">
+                您的浏览器不支持音频播放。
+            </audio>
+            <button class="play-button" id="playBtn" onclick="togglePlay()">
+                <span class="play-icon" id="playIcon">▶</span>
+            </button>
+            <div class="play-text" id="playText">点击收听今日新闻</div>
+            <div class="duration" id="duration"></div>
+        </div>
+
+        
+        <div class="weather-section">
+            <div class="weather-title">🌤️ 今日天气 · 武汉</div>
+            <div class="weather-desc">🌤️ 小雨</div><div class="weather-temp">🌡️ 32°C（体感42°C） · 25~29°C</div><div class="weather-detail">🌬️ 南风2级  💧 湿度63%</div>
+        </div>
+
+        <div class="news-section">
+            <div class="section-title">📋 新闻列表（共13条）</div>
+            
+        <div class="news-item">
+            <div class="news-number">1</div>
+            <div class="news-content">
+                <div class="news-title">陕西发布白皮书展示“十四五”时期县域经济发展成效</div>
+                <div class="news-summary">陕西省发展改革委近日发布《陕西省县域经济高质量发展白皮书》，展示该省“十四五”时期县域经济发展成效，以及各县产业培育情况与特色富民路径。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">2</div>
+            <div class="news-content">
+                <div class="news-title">今年上半年规上工业增加值同比增5.4% 工业经济发展持续稳中向好</div>
+                <div class="news-summary">央视网消息：7月20日上午，国务院新闻办公室举行新闻发布会，工业和信息化部相关负责人介绍今年上半年工业和信息化发展情况。数据显示，今年上半年，规模以上工业增加值同比增长5.4%。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">3</div>
+            <div class="news-content">
+                <div class="news-title">（经济观察）新业态多点开花  北京夏日夜经济拓消费边界</div>
+                <div class="news-summary">入夏以来，北京夜间消费市场热度持续攀升，从滨水廊道到胡同街巷，再到潮流商圈，各类消费场景花式上新，烟火气与时尚感交融共生，勾勒出夏日经济的蓬勃图景。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">4</div>
+            <div class="news-content">
+                <div class="news-title">看新老岗位如何促就业助增收</div>
+                <div class="news-summary">湖南推动技能培训与市场需求紧密结合。这一消息引起了社会各界的关注和讨论，值得我们深入了解。相关工作的推进，将为经济社会发展带来积极影响。这反映了当前社会发展的新动态和新趋势。有关部门正在积极推进相关工作的落实和完善。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">5</div>
+            <div class="news-content">
+                <div class="news-title">王毅将出席中国—东盟外长会和上海合作组织成员国外长理事会会议并访问吉尔吉斯斯坦</div>
+                <div class="news-summary">中国外交部发言人20日宣布：中共中央政治局委员、外交部长王毅将于7月22日出席在菲律宾马尼拉举行的中国—东盟外长会，于23日至25日出席在吉尔吉斯斯坦乔蓬阿塔举行的上海合作组织成员国外长理事会会议并访问吉尔吉斯斯坦。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">6</div>
+            <div class="news-content">
+                <div class="news-title">第三届中国（河南）—东盟国际学术会议在郑州举行</div>
+                <div class="news-summary">为期三日的第三届中国(河南)—东盟国际学术会议19日在河南郑州闭幕。连日来，来自东盟国家，美国、西班牙、韩国等10余个国家的专家学者，与国内数十所高校及科研机构的百余名代表齐聚郑州，共同探讨推进中国与东盟国家之间的学术合作，深化文明互鉴。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">7</div>
+            <div class="news-content">
+                <div class="news-title">外交部：如果日本执政当局在核问题上继续错判形势 必将付出沉重代价</div>
+                <div class="news-summary">中国外交部发言人林剑20日主持例行记者会。这一动态引起了国际社会的广泛关注，也对相关地区的局势产生影响。这一消息反映了当前国际关系的新变化，值得我们持续关注。国际形势的发展变化与我们息息相关，需要我们密切关注。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">8</div>
+            <div class="news-content">
+                <div class="news-title">中方回应沙特机场遭袭：反对袭击民用设施</div>
+                <div class="news-summary">中国外交部发言人林剑20日主持例行记者会。这一消息引起了社会各界的关注和讨论，值得我们深入了解。相关工作的推进，将为经济社会发展带来积极影响。这反映了当前社会发展的新动态和新趋势。有关部门正在积极推进相关工作的落实和完善。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">9</div>
+            <div class="news-content">
+                <div class="news-title">2026世界人工智能大会在上海闭幕</div>
+                <div class="news-summary">这标志着我国在这一科技领域又取得了新的进展和突破。科技创新的步伐不断加快，将为我们带来更多便利和机遇。这一成果展现了科技发展的最新趋势，值得我们期待。让我们一起关注后续的发展情况。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">10</div>
+            <div class="news-content">
+                <div class="news-title">告别美加墨世界杯，哪些场面让人“意难平”？</div>
+                <div class="news-summary">这一消息引起了社会各界的关注和讨论，值得我们深入了解。相关工作的推进，将为经济社会发展带来积极影响。这反映了当前社会发展的新动态和新趋势。有关部门正在积极推进相关工作的落实和完善。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">11</div>
+            <div class="news-content">
+                <div class="news-title">工信部：中国研发的四足机器人占全球销量份额近七成</div>
+                <div class="news-summary">中国工业和信息化部总工程师王卫明20日在北京表示，中国研发的四足机器人占全球销量份额接近70%，人形机器人整机产品达400余款、超全球半数。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">12</div>
+            <div class="news-content">
+                <div class="news-title">斯诺克深圳公开赛资格赛：中国军团首日八人晋级</div>
+                <div class="news-summary">，2026年斯诺克深圳公开赛资格赛于英国莱斯特开赛，中国军团首日表现出色，亮相的12位球手中有8人战胜各自对手，晋级次轮。</div>
+            </div>
+        </div>
+        
+        <div class="news-item">
+            <div class="news-number">13</div>
+            <div class="news-content">
+                <div class="news-title">山西：特高压北岳站累计外送电量突破2000亿千瓦时</div>
+                <div class="news-summary">记者20日从国网山西超高压变电公司获悉，7月19日，该公司1000千伏特高压北岳站累计外送电量突破2000亿千瓦时。</div>
+            </div>
+        </div>
+        
+        </div>
+
+        <div class="blessing-section">
+            <div class="blessing-title">🌹 今日寄语</div>
+            <div class="blessing-text">心存善念，福报自来。愿您每一天都被温暖包围，被幸福拥抱。</div>
+        </div>
+
+        <div class="footer">
+            每日七点，准时为您播报天下事 ❤️
+        </div>
+    </div>
+
+    <script>
+        var audio = document.getElementById('audioPlayer');
+        var btn = document.getElementById('playBtn');
+        var icon = document.getElementById('playIcon');
+        var text = document.getElementById('playText');
+        var durationEl = document.getElementById('duration');
+        var isPlaying = false;
+
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+                icon.textContent = '▶';
+                text.textContent = '继续收听';
+                btn.classList.remove('playing');
+                isPlaying = false;
+            } else {
+                audio.play().then(function() {
+                    icon.textContent = '⏸';
+                    text.textContent = '正在播放...';
+                    btn.classList.add('playing');
+                    isPlaying = true;
+                }).catch(function(e) {
+                    text.textContent = '点击重试';
+                });
+            }
+        }
+
+        audio.addEventListener('loadedmetadata', function() {
+            var mins = Math.floor(audio.duration / 60);
+            var secs = Math.floor(audio.duration % 60);
+            durationEl.textContent = '时长约 ' + mins + ' 分 ' + secs + ' 秒';
+        });
+
+        audio.addEventListener('ended', function() {
+            icon.textContent = '▶';
+            text.textContent = '点击重新收听';
+            btn.classList.remove('playing');
+            isPlaying = false;
+        });
+    </script>
+</body>
+</html>
