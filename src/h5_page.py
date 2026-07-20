@@ -335,7 +335,7 @@ def generate_h5_page(
     <div class="container">
         <div class="header">
             <div class="date">📅 {date_str}</div>
-            <div class="title">📻 今日新闻</div>
+            <div class="title">📻 早安奶奶，今天也要开开心心，身体健康！</div>
         </div>
 
         <div class="player-section">
