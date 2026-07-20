@@ -6,7 +6,7 @@ from datetime import datetime
 import pytz
 from typing import List, Optional
 from news_fetcher import NewsItem
-from summary_generator import get_today_blessing, truncate_summary
+from summary_generator import get_today_blessing, truncate_summary, generate_summary_speech
 from weather_fetcher import WeatherInfo
 
 
@@ -69,14 +69,13 @@ def generate_h5_page(
     # 生成新闻列表 HTML
     news_list_html = ""
     for i, item in enumerate(news_items, 1):
-        summary = truncate_summary(item.summary, max_len=100)
+        core = generate_summary_speech(item.title, item.summary)
         news_list_html += f"""
         <div class="news-item">
             <div class="news-number">{i}</div>
             <div class="news-content">
                 <div class="news-title">{item.title}</div>
-                {f'<div class="news-summary">{summary}</div>' if summary else ''}
-                <div class="news-source">来源：{item.source}</div>
+                {f'<div class="news-summary">{core}</div>' if core else ''}
             </div>
         </div>
         """
